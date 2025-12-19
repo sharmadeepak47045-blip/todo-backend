@@ -3,17 +3,18 @@ import admin from "firebase-admin";
 import fs from "fs";
 import path from "path";
 
-// service account file ka path
+// File ka path
 const serviceAccountPath = path.join(process.cwd(), 'src/serviceAccountKey.json');
 
+// File exist check
 if (!fs.existsSync(serviceAccountPath)) {
-  throw new Error("serviceAccountKey.json file not found!");
+  throw new Error("serviceAccountKey.json file not found! Make sure it is in the src folder.");
 }
 
-// JSON read karke parse karo
+// Read JSON
 const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf-8'));
 
-// Firebase Admin initialize karo
+// Initialize Firebase Admin
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
