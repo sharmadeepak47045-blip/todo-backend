@@ -1,22 +1,33 @@
-import admin from "firebase-admin";
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config(); // Must be first
 
-// Ensure the env variable exists
-if (!process.env.FIREBASE_ADMIN_KEY) {
-  throw new Error("❌ FIREBASE_ADMIN_KEY environment variable missing");
+import admin from "firebase-admin";
+
+console.log("FIREBASE_ADMIN_KEY exists?", !!process.env.FIREBASE_ADMIN_KEY);
+
+const firebaseKey = process.env.FIREBASE_ADMIN_KEY;
+
+if (!firebaseKey) {
+  throw new Error("❌ FIREBASE_ADMIN_KEY environment variable is missing");
 }
 
-// Parse JSON and convert \\n to real newlines
-const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_KEY);
-serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
+let serviceAccount;
 
-// Initialize Firebase Admin
+try {
+  serviceAccount = JSON.parse(firebaseKey);
+  // Convert escaped \n into real newlines
+  serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
+} catch (err) {
+  throw new Error("❌ Invalid FIREBASE_ADMIN_KEY JSON format");
+}
+
+// Initialize Firebase Admin only once
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
 }
 
-console.log("✅ Firebase Admin initialized successfully");
+console.log("🔥 Firebase Admin initialized successfully");
+
 export default admin;
