@@ -1,9 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
+console.log("🔥 ENV CHECK:", process.env.FIREBASE_ADMIN_KEY);
+
 
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import "./firebase.js"
 
 // Routes
 import authRoutes from "./Routes/AuthRoute.js";
@@ -41,18 +44,15 @@ mongoose
     process.exit(1);
   });
 
-// ------------------ ROUTES ------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/todo", todoRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/admin", adminRoutes);
 
-// ------------------ ROOT ------------------
 app.get("/", (req, res) => {
   res.send("🚀 Server is running");
 });
 
-// ------------------ 404 ------------------
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
