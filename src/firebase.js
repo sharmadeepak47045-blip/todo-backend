@@ -1,47 +1,28 @@
-import admin from 'firebase-admin';
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+// src/firebase.js
+import admin from "firebase-admin";
+import fs from "fs";
+import path from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// 🔹 Path to your service account JSON
+const serviceAccountPath = path.join(process.cwd(), "src/serviceAccountKey.json");
 
-// Load service account from file
-const serviceAccountPath = join(__dirname, '..', 'serviceAccountKey.json');
-console.log('Looking for service account at:', serviceAccountPath);
-
-try {
-  const serviceAccount = JSON.parse(
-    readFileSync(serviceAccountPath, 'utf8')
+// 🔹 Check if file exists
+if (!fs.existsSync(serviceAccountPath)) {
+  throw new Error(
+    "❌ serviceAccountKey.json file not found! Make sure it is in the src folder."
   );
-
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-
-  console.log('✅ Firebase initialized successfully');
-} catch (error) {
-  console.error('❌ Error loading Firebase service account:', error.message);
-  console.error('Full path attempted:', serviceAccountPath);
-  
-  // Alternative: Try current directory
-  const altPath = join(__dirname, 'serviceAccountKey.json');
-  console.log('Trying alternative path:', altPath);
-  
-  try {
-    const serviceAccount = JSON.parse(
-      readFileSync(altPath, 'utf8')
-    );
-    
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
-    
-    console.log('✅ Firebase initialized from alternative path');
-  } catch (altError) {
-    console.error('❌ Failed to initialize Firebase from both paths');
-    throw altError;
-  }
 }
+
+// 🔹 Read and parse the JSON file
+const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf-8"));
+
+// 🔹 Initialize Firebase Admin
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
+
+console.log("✅ Firebase Admin initialized");
 
 export default admin;
