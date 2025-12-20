@@ -3,17 +3,14 @@ import {
   signup,
   login,
   sendResetOtp,
-  resetPassword,
-  googleLogin
+  resetPassword
 } from "../controllers/AuthController.js";
 
 const router = express.Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
-router.post("/google", googleLogin);
-
-router.post("/send-reset-otp", sendResetOtp);   // ✅ MATCHES FRONTEND
+router.post("/send-reset-otp", sendResetOtp);
 router.post("/reset-password", resetPassword);
 
 export default router;
