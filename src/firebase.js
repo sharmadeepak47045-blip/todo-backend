@@ -14,6 +14,11 @@ try {
     console.log("✅ Found serviceAccountKey.json, loading from file...");
     const serviceAccountFile = fs.readFileSync(serviceAccountPath, "utf8");
     serviceAccount = JSON.parse(serviceAccountFile);
+    
+    // Clean the private key in file too
+    if (serviceAccount.private_key) {
+      serviceAccount.private_key = serviceAccount.private_key.trim();
+    }
   } else {
     console.log("❌ serviceAccountKey.json not found at:", serviceAccountPath);
     
@@ -24,8 +29,17 @@ try {
       throw new Error("Neither serviceAccountKey.json nor FIREBASE_PRIVATE_KEY found");
     }
 
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY.trim();
+    // 🔹 FIX THIS LINE - Replace escaped newlines with actual newlines
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY
+      .replace(/\\n/g, '\n')  // This is the FIX!
+      .trim();
 
+    console.log("🔍 Debug Info:");
+    console.log("- Private key length:", privateKey.length);
+    console.log("- Contains BEGIN:", privateKey.includes("BEGIN PRIVATE KEY"));
+    console.log("- Contains END:", privateKey.includes("END PRIVATE KEY"));
+    console.log("- Project ID:", process.env.FIREBASE_PROJECT_ID);
+    console.log("- Client Email:", process.env.FIREBASE_CLIENT_EMAIL);
 
     serviceAccount = {
       type: "service_account",
@@ -54,7 +68,16 @@ try {
   }
 
 } catch (error) {
-  console.error("❌ Firebase Admin initialization failed:", error);
+  console.error("❌ Firebase Admin initialization failed:", error.message);
+  
+  // More helpful error message
+  if (error.message.includes("Invalid PEM")) {
+    console.error("\n💡 SOLUTION: Check your FIREBASE_PRIVATE_KEY environment variable");
+    console.error("1. Make sure it has proper newlines (\\n)");
+    console.error("2. Ensure it's the COMPLETE key (~1678 characters)");
+    console.error("3. Check that BEGIN and END PRIVATE KEY lines are present");
+  }
+  
   throw error;
 }
 
