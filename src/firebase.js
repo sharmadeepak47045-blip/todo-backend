@@ -24,9 +24,8 @@ try {
       throw new Error("Neither serviceAccountKey.json nor FIREBASE_PRIVATE_KEY found");
     }
 
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY
-      .replace(/\\n/g, "\n")
-      .replace(/^"|"$/g, "");
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY.trim();
+
 
     serviceAccount = {
       type: "service_account",
