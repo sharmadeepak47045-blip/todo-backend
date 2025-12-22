@@ -5,6 +5,7 @@ dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import "./firebase.js"
 
 import authRoutes from "./Routes/AuthRoute.js";
 import todoRoutes from "./Routes/TodoRoute.js";

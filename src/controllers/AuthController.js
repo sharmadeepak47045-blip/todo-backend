@@ -2,6 +2,7 @@ import User from "../Models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendOtpEmail } from "../utils/sendEmail.js";
+import  admin from"../firebase.js"
 
 export const signup = async (req, res) => {
   try {
@@ -71,6 +72,40 @@ export const login = async (req, res) => {
   }
 };
 
+
+export const googleLogin = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ message: "ID token required" });
+
+    const decoded = await admin.auth().verifyIdToken(idToken);
+
+    const { email, name } = decoded;
+    if (!email) return res.status(400).json({ message: "Email not found from Google" });
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        name: name || "Google User",
+        email,
+        password: "GOOGLE_LOGIN", 
+        loginMethod: "google",
+        isVerified: true,
+      });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(200).json({ success: true, token, user });
+  } catch (error) {
+    console.error("Google Login Error:", error);
+    res.status(401).json({ message: "Invalid Google token" });
+  }
+};
 
 
 
