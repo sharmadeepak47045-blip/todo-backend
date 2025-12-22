@@ -1,4 +1,3 @@
-// Update your firebase.js file to properly handle the private key
 import admin from "firebase-admin";
 import fs from "fs";
 import path from "path";
@@ -6,6 +5,7 @@ import path from "path";
 let serviceAccount;
 
 try {
+  // 🔹 Always try to load from file first
   const serviceAccountPath = path.resolve("./src/serviceAccountKey.json");
   
   console.log(`📁 Looking for Firebase config at: ${serviceAccountPath}`);
@@ -15,17 +15,17 @@ try {
     const serviceAccountFile = fs.readFileSync(serviceAccountPath, "utf8");
     serviceAccount = JSON.parse(serviceAccountFile);
   } else {
-    console.log("❌ serviceAccountKey.json not found, trying environment variables...");
+    console.log("❌ serviceAccountKey.json not found at:", serviceAccountPath);
+    
+    // 🔹 Fallback to environment variables (for Render)
+    console.log("📝 Trying environment variables as fallback...");
     
     if (!process.env.FIREBASE_PRIVATE_KEY) {
       throw new Error("Neither serviceAccountKey.json nor FIREBASE_PRIVATE_KEY found");
     }
 
-    // 🔹 IMPORTANT: Replace escaped newlines with actual newlines
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
-    
-    console.log("Private key length:", privateKey.length);
-    console.log("Private key starts with:", privateKey.substring(0, 50));
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY.trim();
+
 
     serviceAccount = {
       type: "service_account",
@@ -43,11 +43,6 @@ try {
 
   console.log("🔧 Initializing Firebase Admin...");
   
-  // Verify service account structure
-  console.log("Service Account Keys:", Object.keys(serviceAccount));
-  console.log("Private Key exists:", !!serviceAccount.private_key);
-  console.log("Client Email exists:", !!serviceAccount.client_email);
-  
   // 🔥 Initialize once
   if (!admin.apps.length) {
     admin.initializeApp({
@@ -60,10 +55,6 @@ try {
 
 } catch (error) {
   console.error("❌ Firebase Admin initialization failed:", error);
-  // Log more details about the error
-  if (error.code === 'app/invalid-credential') {
-    console.error("Check your private key format and length");
-  }
   throw error;
 }
 
