@@ -79,16 +79,14 @@ export const googleLogin = async (req, res) => {
     if (!idToken) return res.status(400).json({ message: "ID token required" });
 
     const decoded = await admin.auth().verifyIdToken(idToken);
-
     const { email, name } = decoded;
-    if (!email) return res.status(400).json({ message: "Email not found from Google" });
 
     let user = await User.findOne({ email });
     if (!user) {
       user = await User.create({
         name: name || "Google User",
         email,
-        password: "GOOGLE_LOGIN", 
+        password: "GOOGLE_LOGIN",
         loginMethod: "google",
         isVerified: true,
       });
@@ -106,6 +104,7 @@ export const googleLogin = async (req, res) => {
     res.status(401).json({ message: "Invalid Google token" });
   }
 };
+
 
 
 
