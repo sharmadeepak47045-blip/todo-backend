@@ -76,17 +76,27 @@ export const login = async (req, res) => {
 export const googleLogin = async (req, res) => {
   try {
     const { idToken } = req.body;
-    if (!idToken) return res.status(400).json({ message: "ID token required" });
+    
+    if (!idToken) {
+      return res.status(400).json({ message: "ID token required" });
+    }
 
     const decoded = await admin.auth().verifyIdToken(idToken);
-    const { email, name } = decoded;
+
+    if (!decoded.email) {
+      return res.status(401).json({ message: "Invalid Google token" });
+    }
+
+    const email = decoded.email.toLowerCase();
+    const name = decoded.name || "Google User";
 
     let user = await User.findOne({ email });
+
     if (!user) {
       user = await User.create({
-        name: name || "Google User",
+        name,
         email,
-        password: "GOOGLE_LOGIN",
+        password: decoded.uid, // dummy password
         loginMethod: "google",
         isVerified: true,
       });
@@ -98,9 +108,14 @@ export const googleLogin = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.status(200).json({ success: true, token, user });
+    res.status(200).json({
+      success: true,
+      token,
+      user,
+    });
+
   } catch (error) {
-    console.error("Google Login Error:", error);
+    console.error("❌ Google Login Error:", error.message);
     res.status(401).json({ message: "Invalid Google token" });
   }
 };
