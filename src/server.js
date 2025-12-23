@@ -18,8 +18,8 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173","http://localhost:5174","http://localhost:5175","https://todo-frontend-delta-tawny.vercel.app",
-      process.env.FRONTEND_URL],
+    origin: ["http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "https://todo-frontend-delta-tawny.vercel.app",
+      process.env.FRONTEND_URL, "https://todo-frontend-git-main-deepak-s-projects-3ef3c471.vercel.app"],
     credentials: true,
   })
 );
