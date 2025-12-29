@@ -22,12 +22,7 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
     },
 
-    loginMethod: {
-      type: String,
-      enum: ["email", "google"],
-      default: "email",
-    },
-
+  
     isVerified: {
       type: Boolean,
       default: false,

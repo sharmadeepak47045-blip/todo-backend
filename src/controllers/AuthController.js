@@ -2,7 +2,6 @@ import User from "../Models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendOtpEmail } from "../utils/sendEmail.js";
-import  admin from"../firebase.js"
 
 export const signup = async (req, res) => {
   try {
@@ -24,7 +23,7 @@ export const signup = async (req, res) => {
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
-      loginMethod: "email", // ✅ FIX
+      loginMethod: "email", 
       isVerified: true,
     });
 
@@ -71,56 +70,6 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
-export const googleLogin = async (req, res) => {
-  try {
-    const { idToken } = req.body;
-    
-    if (!idToken) {
-      return res.status(400).json({ message: "ID token required" });
-    }
-
-    const decoded = await admin.auth().verifyIdToken(idToken);
-
-    if (!decoded.email) {
-      return res.status(401).json({ message: "Invalid Google token" });
-    }
-
-    const email = decoded.email.toLowerCase();
-    const name = decoded.name || "Google User";
-
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      user = await User.create({
-        name,
-        email,
-        password: decoded.uid, // dummy password
-        loginMethod: "google",
-        isVerified: true,
-      });
-    }
-
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.status(200).json({
-      success: true,
-      token,
-      user,
-    });
-
-  } catch (error) {
-    console.error("❌ Google Login Error:", error.message);
-    res.status(401).json({ message: "Invalid Google token" });
-  }
-};
-
-
 
 
 export const sendResetOtp = async (req, res) => {
