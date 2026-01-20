@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-import User from "../Models/user.js"
+import User from "../Models/user.js";
 
 dotenv.config();
 
@@ -30,7 +30,6 @@ const start = async () => {
       console.log("✅ Admin user created:", adminUser.email);
     }
 
-    // 3️⃣ Create Admin Panel Login Admin
     const existingAdmin = await User.findOne({ username: "admin" });
 
     if (existingAdmin) {
@@ -49,7 +48,6 @@ const start = async () => {
 
       console.log("✅ Admin created in Admin collection:", admin.username);
     }
-
     process.exit();
   } catch (error) {
     console.log("❌ Seeder Error:", error.message);

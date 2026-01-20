@@ -2,16 +2,14 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
-// 🔹 Create transporter with Gmail using App Password
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // must be a 16-char Gmail App Password
+    pass: process.env.EMAIL_PASS, 
   },
 });
 
-// 🔹 Verify transporter at startup
 transporter.verify((err, success) => {
   if (err) {
     console.error("❌ Mailer verification failed:", err);
@@ -20,7 +18,6 @@ transporter.verify((err, success) => {
   }
 });
 
-// 🔹 Function to send OTP email
 export const sendOtpEmail = async (toEmail, otp) => {
   const mailOptions = {
     from: `"Todo App" <${process.env.EMAIL_USER}>`,
