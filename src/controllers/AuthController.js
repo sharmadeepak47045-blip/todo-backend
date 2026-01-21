@@ -50,8 +50,13 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Please login using Google" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
+        console.log("👉 Password Match Result:", isMatch);
+
+    if (!isMatch){
+            console.log("❌ Password mismatch");
+
       return res.status(400).json({ message: "Invalid password" });
+    }
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
